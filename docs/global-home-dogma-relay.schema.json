@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Berry-Blog/global/blob/main/docs/global-home-dogma-relay.schema.json",
+  "title": "Global Home to Dogma Sing-box Relay",
+  "type": "object",
+  "required": ["schema_version", "kind", "generated_at", "profile", "exits"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "global-home-dogma-relay"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "profile": {
+      "type": "object",
+      "required": ["profile_id", "name", "server", "public_port", "network", "security", "sni", "fingerprint", "flow", "public_key", "short_id"],
+      "additionalProperties": false,
+      "properties": {
+        "profile_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,31}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 120},
+        "server": {"type": "string", "minLength": 1, "maxLength": 253},
+        "public_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "network": {"const": "tcp"},
+        "security": {"const": "reality"},
+        "sni": {"type": "string", "minLength": 1, "maxLength": 253},
+        "fingerprint": {"const": "chrome"},
+        "flow": {"const": "xtls-rprx-vision"},
+        "public_key": {"type": "string", "pattern": "^[A-Za-z0-9_-]{43}$"},
+        "short_id": {"type": "string", "pattern": "^(?:[0-9a-fA-F]{2}){1,8}$"}
+      }
+    },
+    "exits": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "uuid", "email", "outbound_tag", "socks5", "enabled", "route_valid"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,31}$"},
+          "name": {"type": "string", "minLength": 1, "maxLength": 180},
+          "uuid": {"type": "string", "format": "uuid"},
+          "email": {"type": "string", "maxLength": 254},
+          "outbound_tag": {"type": "string", "pattern": "^[A-Za-z0-9_.-]{1,64}$"},
+          "socks5": {
+            "type": "object",
+            "required": ["server", "port"],
+            "additionalProperties": false,
+            "properties": {
+              "server": {"type": "string", "minLength": 1, "maxLength": 253},
+              "port": {"type": "integer", "minimum": 1, "maximum": 65535}
+            }
+          },
+          "expected_exit_ip": {"type": "string", "format": "ip"},
+          "country": {"type": "string", "pattern": "^[A-Z]{2}$"},
+          "enabled": {"type": "boolean"},
+          "route_valid": {"type": "boolean"}
+        }
+      }
+    },
+    "anomalies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "route_valid", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "route_valid": {"const": false},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

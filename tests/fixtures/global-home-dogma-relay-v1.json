@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "global-home-dogma-relay",
+  "generated_at": "2026-11-14T00:00:00Z",
+  "profile": {
+    "profile_id": "global-home-main",
+    "name": "Global Home",
+    "server": "209.33.166.81",
+    "public_port": 40045,
+    "network": "tcp",
+    "security": "reality",
+    "sni": "www.apple.com",
+    "fingerprint": "chrome",
+    "flow": "xtls-rprx-vision",
+    "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "short_id": "0123456789abcdef"
+  },
+  "exits": [
+    {
+      "id": "global-biglobe",
+      "name": "日本 BIGLOBE",
+      "uuid": "11111111-1111-4111-8111-111111111111",
+      "email": "biglobe@home",
+      "outbound_tag": "big-out",
+      "socks5": {"server": "10.88.0.1", "port": 5002},
+      "expected_exit_ip": "61.193.51.9",
+      "enabled": true,
+      "route_valid": true
+    },
+    {
+      "id": "global-pavlov",
+      "name": "美国 Pavlov",
+      "uuid": "22222222-2222-4222-8222-222222222222",
+      "email": "pavlov@home",
+      "outbound_tag": "pav-out",
+      "socks5": {"server": "10.88.0.1", "port": 5005},
+      "expected_exit_ip": "96.63.208.157",
+      "enabled": true,
+      "route_valid": true
+    },
+    {
+      "id": "global-starhub",
+      "name": "新加坡 StarHub",
+      "uuid": "33333333-3333-4333-8333-333333333333",
+      "email": "starhub@home",
+      "outbound_tag": "star-out",
+      "socks5": {"server": "10.88.0.1", "port": 5009},
+      "expected_exit_ip": "202.156.27.233",
+      "enabled": true,
+      "route_valid": true
+    }
+  ],
+  "anomalies": []
+}

@@ -1,0 +1,28 @@
+name: Validate Global Home release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  release-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify the self-extracting installer without installing
+        run: bash global-home-nodes-install-v2.1.0.sh --verify
+
+      - name: Extract the verified source ZIP
+        run: python3 -m zipfile -e global-home-nodes-v2.1.0.zip "$RUNNER_TEMP/global-home-source"
+
+      - name: Check artifacts, module imports and relay export tests
+        env:
+          PYTHONPATH: ${{ runner.temp }}/global-home-source/global-home-nodes
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 -m py_compile "$PYTHONPATH"/*.py
+          python3 -c 'import core,deploy,lazycat_adapter,update_manager,relay_export'
+          bash -n "$PYTHONPATH/install.sh" "$PYTHONPATH/gl"
