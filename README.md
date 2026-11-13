@@ -25,7 +25,7 @@ global-home-nodes status
 # 重新读取家宽出口并更新节点
 global-home-nodes refresh
 
-# 更新管理程序和 LazyCat 版本适配器
+# 更新管理程序和版本适配器
 global-home-nodes update
 
 # 只检查是否有管理程序更新
