@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "tool": "global-home-nodes",
+  "version": "2.0.0",
+  "adapter_version": "1.0.0",
+  "archive_path": "global-home-nodes-v2.0.0.zip",
+  "archive_sha256": "80a3e5b85625d65ef5243222573a7c7508cbac8caadf665b4c3209fac098aade"
+}
