@@ -37,7 +37,3 @@ global-home-nodes refresh --import-json /root/my-authorized-exits.json
 # 卸载本工具
 global-home-nodes uninstall
 ```
-
-## 源码
-
-[下载完整源码 ZIP](https://github.com/Berry-Blog/global/raw/refs/heads/main/global-home-nodes-v2.0.0.zip)
