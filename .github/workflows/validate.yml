@@ -26,4 +26,3 @@ jobs:
           python3 -m py_compile "$PYTHONPATH"/*.py
           python3 -c 'import core,deploy,lazycat_adapter,update_manager,relay_export'
           bash -n "$PYTHONPATH/install.sh" "$PYTHONPATH/gl"
-
