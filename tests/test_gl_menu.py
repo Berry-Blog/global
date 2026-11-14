@@ -80,7 +80,22 @@ class GlobalHomeMenuTests(unittest.TestCase):
             self.run_menu(["0"])
         deploy_action.assert_not_called()
 
+    def test_menu_keeps_existing_inspection_and_export_options(self):
+        names = (
+            "relay_lines",
+            "relay_public_parameters",
+            "relay_export",
+            "relay_route_check",
+            "relay_outbound_status",
+        )
+        patches = [mock.patch.object(deploy, name) for name in names]
+        with contextlib.ExitStack() as stack:
+            actions = [stack.enter_context(patch) for patch in patches]
+            self.run_menu(["1", "2", "3", "4", "5", "0"])
+
+        for action in actions:
+            action.assert_called_once_with()
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-
