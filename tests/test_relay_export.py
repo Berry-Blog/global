@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src" / "global-home-nodes"))
-from relay_export import build_relay_export, write_relay_export
+from relay_export import build_relay_export, read_runtime_export, write_relay_export
 
 
 U1 = "11111111-1111-4111-8111-111111111111"
@@ -135,6 +135,21 @@ class RelayExportTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "未运行"):
                 write_relay_export(sample_config(), sample_state(), sample_audit(), root=root,
                                    generated_at="2026-11-14T00:00:00Z", service_active=False)
+
+    def test_runtime_generation_reads_audit_array_and_builds_export(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            generation = root / "generations" / "generation-1"
+            generation.mkdir(parents=True)
+            (generation / "config.json").write_text(json.dumps(sample_config()), encoding="utf-8")
+            (generation / "state.private.json").write_text(json.dumps(sample_state()), encoding="utf-8")
+            (generation / "upstream-audit.json").write_text(json.dumps(sample_audit()), encoding="utf-8")
+            (root / "current").symlink_to(generation, target_is_directory=True)
+
+            document = read_runtime_export(root)
+
+            self.assertEqual(len(document["exits"]), 3)
+            self.assertEqual({row["id"] for row in document["exits"]}, {"global-biglobe", "global-pavlov", "global-starhub"})
 
 
 if __name__ == "__main__":
