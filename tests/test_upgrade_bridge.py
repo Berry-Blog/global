@@ -7,6 +7,7 @@ from pathlib import Path
 import stat
 import tempfile
 import unittest
+import warnings
 import zipfile
 
 
@@ -80,10 +81,12 @@ class UpgradeBridgeTests(unittest.TestCase):
             BRIDGE.validate_archive(traversal, traversal_release)
 
         duplicate = io.BytesIO()
-        with zipfile.ZipFile(io.BytesIO(raw)) as source, zipfile.ZipFile(duplicate, "w", zipfile.ZIP_DEFLATED) as target:
-            for info in source.infolist():
-                target.writestr(info.filename, source.read(info))
-            target.writestr("global-home-nodes/gl", b"duplicate")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            with zipfile.ZipFile(io.BytesIO(raw)) as source, zipfile.ZipFile(duplicate, "w", zipfile.ZIP_DEFLATED) as target:
+                for info in source.infolist():
+                    target.writestr(info.filename, source.read(info))
+                target.writestr("global-home-nodes/gl", b"duplicate")
         duplicate_bytes = duplicate.getvalue()
         duplicate_release = dict(release, archive_sha256=hashlib.sha256(duplicate_bytes).hexdigest())
         with self.assertRaises(BRIDGE.UpgradeError):
@@ -194,7 +197,7 @@ class UpgradeBridgeTests(unittest.TestCase):
                 if len(calls) == 2:
                     raise BRIDGE.UpgradeError("post-install import check failed")
 
-            with self.assertRaisesRegex(BRIDGE.UpgradeError, "rolled back"):
+            with self.assertRaisesRegex(BRIDGE.UpgradeError, "已回滚"):
                 BRIDGE.install_verified_files(
                     files, app, gl_link, root / "backup", smoke_test=fail_after_replace
                 )
