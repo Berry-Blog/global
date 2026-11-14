@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 ROOT = Path(os.environ.get("GLOBAL_RELEASE_ROOT", Path(__file__).resolve().parents[1]))
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 
 
 def sha256(path):
