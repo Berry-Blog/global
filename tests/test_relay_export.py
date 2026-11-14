@@ -91,6 +91,29 @@ class RelayExportTests(unittest.TestCase):
         self.assertNotIn("global-pavlov", {entry["id"] for entry in doc["exits"]})
         self.assertTrue(any(a["id"] == "global-pavlov" for a in doc["anomalies"]))
 
+    def test_same_uuid_must_belong_to_the_matching_email_metadata_row(self):
+        config = sample_config()
+        clients = config["inbounds"][0]["settings"]["clients"]
+        clients[0]["id"], clients[1]["id"] = clients[1]["id"], clients[0]["id"]
+
+        doc = build_relay_export(config, sample_state(), sample_audit(), generated_at="2026-11-14T00:00:00Z")
+
+        exits = {entry["id"] for entry in doc["exits"]}
+        self.assertNotIn("global-pavlov", exits)
+        self.assertNotIn("global-biglobe", exits)
+        self.assertEqual(sum(row["id"] == "unresolved-global-exit" for row in doc["anomalies"]), 2)
+
+    def test_duplicate_xray_email_is_not_exported_as_a_unique_line(self):
+        config = sample_config()
+        clients = config["inbounds"][0]["settings"]["clients"]
+        duplicate = dict(clients[0], id="44444444-4444-4444-8444-444444444444")
+        clients.insert(0, duplicate)
+
+        doc = build_relay_export(config, sample_state(), sample_audit(), generated_at="2026-11-14T00:00:00Z")
+
+        self.assertNotIn("global-pavlov", {entry["id"] for entry in doc["exits"]})
+        self.assertTrue(any(row["id"] == "unresolved-global-exit" for row in doc["anomalies"]))
+
     def test_state_mismatch_and_non_socks_outbound_are_rejected(self):
         config = sample_config()
         config["outbounds"][0]["protocol"] = "freedom"

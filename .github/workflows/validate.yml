@@ -13,10 +13,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify the self-extracting installer without installing
-        run: bash global-home-nodes-install-v2.1.1.sh --verify
+        run: bash global-home-nodes-install-v2.1.2.sh --verify
 
       - name: Extract the verified source ZIP
-        run: python3 -m zipfile -e global-home-nodes-v2.1.1.zip "$RUNNER_TEMP/global-home-source"
+        run: python3 -m zipfile -e global-home-nodes-v2.1.2.zip "$RUNNER_TEMP/global-home-source"
 
       - name: Check artifacts, module imports and relay export tests
         env:
