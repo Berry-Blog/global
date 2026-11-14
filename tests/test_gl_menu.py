@@ -49,8 +49,25 @@ class GlobalHomeMenuTests(unittest.TestCase):
         status_action.assert_called_once_with()
 
         with mock.patch.object(deploy, "deploy") as deploy_action:
-            self.run_menu(["7", "0"])
-        self.assertEqual(deploy_action.call_args.args[0].action, "deploy")
+            self.run_menu(["7", "1", "0"])
+        args = deploy_action.call_args.args[0]
+        self.assertEqual(args.action, "deploy")
+        self.assertIsNone(args.import_json)
+
+    def test_menu_first_deploy_can_import_authorized_json(self):
+        with mock.patch.object(deploy, "deploy") as deploy_action:
+            self.run_menu(["7", "2", "/root/authorized-exits.json", "0"])
+
+        args = deploy_action.call_args.args[0]
+        self.assertEqual(args.action, "deploy")
+        self.assertEqual(args.import_json, "/root/authorized-exits.json")
+
+    def test_menu_blank_first_deploy_json_path_cancels(self):
+        with mock.patch.object(deploy, "deploy") as deploy_action:
+            output = self.run_menu(["7", "2", "", "0"])
+
+        deploy_action.assert_not_called()
+        self.assertIn("已取消", output)
 
     def test_menu_routes_check_and_install_update_separately(self):
         with mock.patch.object(deploy, "update_manager") as update_action:
