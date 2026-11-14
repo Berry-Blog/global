@@ -4,6 +4,7 @@ import io
 import json
 import os
 from pathlib import Path
+import stat
 import tempfile
 import unittest
 import zipfile
@@ -35,6 +36,12 @@ def rewrite_archive(raw, transform):
 
 
 class UpgradeBridgeTests(unittest.TestCase):
+    def test_bridge_download_has_a_matching_published_sha256_file(self):
+        script = ROOT / "upgrade_bridge_2_0_1_to_2_1_0.py"
+        manifest = ROOT / (script.name + ".sha256")
+        line = f"{hashlib.sha256(script.read_bytes()).hexdigest()}  {script.name}\n"
+        self.assertEqual(manifest.read_text(encoding="utf-8"), line)
+
     def test_reproduces_201_to_210_rejection_and_bridge_accepts_exact_13_files(self):
         old_zip = ROOT / "global-home-nodes-v2.0.1.zip"
         with zipfile.ZipFile(old_zip) as archive:
@@ -82,6 +89,26 @@ class UpgradeBridgeTests(unittest.TestCase):
         with self.assertRaises(BRIDGE.UpgradeError):
             BRIDGE.validate_archive(duplicate_bytes, duplicate_release)
 
+    def test_rejects_symlink_archive_members(self):
+        raw = published_archive()
+        release = published_release()
+        output = io.BytesIO()
+        with zipfile.ZipFile(io.BytesIO(raw)) as source, zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as target:
+            for info in source.infolist():
+                data = source.read(info)
+                if info.filename.endswith("/gl"):
+                    symlink = zipfile.ZipInfo(info.filename)
+                    symlink.create_system = 3
+                    symlink.external_attr = (stat.S_IFLNK | 0o777) << 16
+                    symlink.compress_type = zipfile.ZIP_DEFLATED
+                    target.writestr(symlink, b"deploy.py")
+                else:
+                    target.writestr(info.filename, data)
+        symlink_bytes = output.getvalue()
+        symlink_release = dict(release, archive_sha256=hashlib.sha256(symlink_bytes).hexdigest())
+        with self.assertRaises(BRIDGE.UpgradeError):
+            BRIDGE.validate_archive(symlink_bytes, symlink_release)
+
     def test_rejects_tampered_member_even_when_outer_hash_is_updated(self):
         raw = published_archive()
         release = published_release()
@@ -111,6 +138,7 @@ class UpgradeBridgeTests(unittest.TestCase):
             service.parent.mkdir(parents=True)
             service.write_text("existing service\n", encoding="utf-8")
             gl_link = root / "usr" / "local" / "bin" / "gl"
+            gl_link.parent.mkdir(parents=True)
             backup = root / "root" / "global-home-nodes-code-backups"
 
             BRIDGE.install_verified_files(files, app, gl_link, backup)
@@ -124,6 +152,13 @@ class UpgradeBridgeTests(unittest.TestCase):
             self.assertEqual(config.read_text(), "existing node state\n")
             self.assertEqual(service.read_text(), "existing service\n")
             self.assertTrue(list(backup.glob("*/update_manager.py")))
+
+    def test_published_management_program_wires_gl_export_to_relay_export(self):
+        files = BRIDGE.validate_archive(published_archive(), published_release())
+        self.assertIn(b"exec /usr/local/bin/global-home-nodes", files["gl"])
+        self.assertIn(b"export_from_runtime", files["deploy.py"])
+        self.assertIn(b"export-relay", files["deploy.py"])
+        self.assertIn(b"relay_export.py", files["update_manager.py"])
 
     def test_rejects_non_201_install_without_writing(self):
         files = BRIDGE.validate_archive(published_archive(), published_release())
@@ -151,6 +186,7 @@ class UpgradeBridgeTests(unittest.TestCase):
             (app / "VERSION.json").write_text('{"version":"2.0.1","adapter_version":"1.0.0"}\n', encoding="utf-8")
             (app / "update_manager.py").write_text("legacy updater\n", encoding="utf-8")
             gl_link = root / "usr" / "local" / "bin" / "gl"
+            gl_link.parent.mkdir(parents=True)
             calls = []
 
             def fail_after_replace(path):
