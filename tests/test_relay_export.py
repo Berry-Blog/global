@@ -58,6 +58,28 @@ def sample_audit():
 
 
 class RelayExportTests(unittest.TestCase):
+    def test_digit_leading_provider_key_maps_to_its_email_metadata(self):
+        key = "4feb22d3f51022fd5a1e428a"
+        config = sample_config()
+        for client in config["inbounds"][0]["settings"]["clients"]:
+            if client["id"] == U1:
+                client["email"] = key + "@home"
+        for rule in config["routing"]["rules"]:
+            if rule["user"] == ["biglobe@home"]:
+                rule["user"] = [key + "@home"]
+
+        state = sample_state()
+        next(node for node in state["nodes"] if node["key"] == "biglobe")["key"] = key
+        audit = sample_audit()
+        next(row for row in audit if row["key"] == "biglobe")["key"] = key
+
+        doc = build_relay_export(config, state, audit, generated_at="2026-11-14T00:00:00Z")
+
+        exits = {entry["id"]: entry for entry in doc["exits"]}
+        self.assertIn("global-" + key, exits)
+        self.assertEqual(exits["global-" + key]["uuid"], U1)
+        self.assertFalse(any(row["id"] == "unresolved-global-exit" for row in doc["anomalies"]))
+
     def test_global_export_matches_the_shared_dogma_fixture(self):
         fixture = Path(__file__).resolve().parent / "fixtures" / "global-home-dogma-relay-v1.json"
         expected = json.loads(fixture.read_text(encoding="utf-8"))
@@ -177,3 +199,4 @@ class RelayExportTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 ROOT = Path(os.environ.get("GLOBAL_RELEASE_ROOT", Path(__file__).resolve().parents[1]))
-VERSION = "2.1.2"
+VERSION = "2.1.3"
 
 
 def sha256(path):
@@ -63,3 +63,4 @@ class ReleaseArtifactTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

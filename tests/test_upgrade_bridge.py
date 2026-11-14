@@ -12,7 +12,7 @@ import zipfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BRIDGE_PATH = ROOT / "upgrade_bridge_2_0_1_to_2_1_2.py"
+BRIDGE_PATH = ROOT / "upgrade_bridge_2_0_1_to_2_1_3.py"
 SPEC = importlib.util.spec_from_file_location("upgrade_bridge", BRIDGE_PATH)
 BRIDGE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BRIDGE)
@@ -24,7 +24,7 @@ def published_release():
 
 
 def published_archive():
-    return (ROOT / "global-home-nodes-v2.1.2.zip").read_bytes()
+    return (ROOT / "global-home-nodes-v2.1.3.zip").read_bytes()
 
 
 def rewrite_archive(raw, transform):
@@ -38,12 +38,12 @@ def rewrite_archive(raw, transform):
 
 class UpgradeBridgeTests(unittest.TestCase):
     def test_bridge_download_has_a_matching_published_sha256_file(self):
-        script = ROOT / "upgrade_bridge_2_0_1_to_2_1_2.py"
+        script = ROOT / "upgrade_bridge_2_0_1_to_2_1_3.py"
         manifest = ROOT / (script.name + ".sha256")
         line = f"{hashlib.sha256(script.read_bytes()).hexdigest()}  {script.name}\n"
         self.assertEqual(manifest.read_text(encoding="utf-8"), line)
 
-    def test_reproduces_201_to_211_rejection_and_bridge_accepts_exact_13_files(self):
+    def test_reproduces_201_to_213_rejection_and_bridge_accepts_exact_13_files(self):
         old_zip = ROOT / "global-home-nodes-v2.0.1.zip"
         with zipfile.ZipFile(old_zip) as archive:
             old_source = archive.read("global-home-nodes/update_manager.py")
@@ -146,7 +146,7 @@ class UpgradeBridgeTests(unittest.TestCase):
 
             BRIDGE.install_verified_files(files, app, gl_link, backup)
 
-            self.assertEqual(json.loads((app / "VERSION.json").read_text())["version"], "2.1.2")
+            self.assertEqual(json.loads((app / "VERSION.json").read_text())["version"], "2.1.3")
             self.assertTrue((app / "relay_export.py").is_file())
             self.assertTrue(os.access(app / "gl", os.X_OK))
             self.assertTrue(gl_link.is_symlink())
@@ -210,4 +210,5 @@ class UpgradeBridgeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
 
