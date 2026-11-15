@@ -34,24 +34,22 @@ v2.1.3 修复了数字开头的供应商线路 key 被导出器忽略的问题�
 
 ## 从 v2.0.1 安全升级
 
-v2.0.1 更新器只接受固定的 11 项源码清单，先使用安全桥接器升级到 v2.1.3，再通过管理程序更新到 v2.1.4。不要运行完整安装器或手动编辑 Python 文件。以 root shell 执行：
+v2.0.1 更新器只接受固定的 11 项源码清单，不能直接升级到当前 2.1.4。使用安全桥接器直接升级到 v2.1.4，不运行完整安装器，也不改动节点数据。以 root shell 执行：
 
 ~~~sh
 set -eu
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 base='https://raw.githubusercontent.com/Berry-Blog/global/main'
-file='upgrade_bridge_2_0_1_to_2_1_3.py'
+file='upgrade_bridge_2_0_1_to_2_1_4.py'
 curl -fL --proto '=https' --tlsv1.2 "$base/$file" -o "$tmp/$file"
 curl -fL --proto '=https' --tlsv1.2 "$base/$file.sha256" -o "$tmp/$file.sha256"
 (cd "$tmp" && sha256sum -c "$file.sha256")
 python3 "$tmp/$file" --check-only
 python3 "$tmp/$file"
-global-home-nodes update --check-only
-global-home-nodes update
 ~~~
 
-桥接器校验 v2.1.3 发布清单、固定 ZIP SHA256、13 项文件清单、路径安全、CRC、内部文件 SHA256 和版本元数据。它只更新管理程序代码，不更改 /etc/global-home-nodes 或服务。
+桥接器校验 v2.1.4 发布清单、固定 ZIP SHA256、13 项文件清单、路径安全、CRC、内部 SHA256 和版本元数据。它只更新管理程序代码，不更改 /etc/global-home-nodes 或服务。
 
 ## gl 菜单与狗妈 JSON
 
