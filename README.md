@@ -1,27 +1,29 @@
-# Global Home v2.1.4 使用说明
+# Global Home v2.1.5 使用说明
 
 ## 安装
 
 ~~~sh
-curl -fLO https://raw.githubusercontent.com/Berry-Blog/global/main/global-home-nodes-install-v2.1.4.sh
-chmod +x global-home-nodes-install-v2.1.4.sh
-sh global-home-nodes-install-v2.1.4.sh
+curl -fLO https://raw.githubusercontent.com/Berry-Blog/global/main/global-home-nodes-install-v2.1.5.sh
+chmod +x global-home-nodes-install-v2.1.5.sh
+sh global-home-nodes-install-v2.1.5.sh
 ~~~
 
 ## 校验安装包
 
 ~~~sh
-sh global-home-nodes-install-v2.1.4.sh --verify
-sha256sum -c global-home-nodes-v2.1.4-artifacts.sha256
+sh global-home-nodes-install-v2.1.5.sh --verify
+sha256sum -c global-home-nodes-v2.1.5-artifacts.sha256
 ~~~
 
-## v2.1.4 新增：修改公网映射 IP/端口
+## v2.1.5 修复操作锁并保留公网映射功能
 
-运行 gl，选择菜单项 13。输入新公网 IP 或域名和公网 TCP 端口；本机内部 TCP 端口、供应商出口、UUID、Reality 参数和现有 Xray 服务保持不变。工具会创建新的受管配置代，更新本机 VLESS/Clash 等节点文件，并自动重新生成狗妈中转 JSON。
+v2.1.5 修复了 gl 菜单等待输入时长期占用管理锁的问题；菜单现在只在实际执行操作时加锁，发生冲突时会显示持锁进程的 PID、操作和开始时间。
+
+修改公网映射时，运行 gl 并选择菜单项 13。输入新公网 IP 或域名和公网 TCP 端口；本机内部 TCP 端口、供应商出口、UUID、Reality 参数和现有 Xray 服务保持不变。工具会创建新的受管配置代，更新本机 VLESS/Clash 等节点文件，并自动重新生成狗妈中转 JSON。
 
 请先在服务商面板配置公网 TCP 端口转发，再输入 UPDATE 确认。该操作不会验证外部网络是否能连通；请将重新生成的 dogma-relay.json 同步到狗妈机，并从外部客户端测试新地址。
 
-## 从 v2.1.0、v2.1.1、v2.1.2 或 v2.1.3 升级
+## 从 v2.1.0 到 v2.1.4 升级到 v2.1.5
 
 管理程序更新只替换程序代码，不更改现有线路数据、UUID、Reality 参数、端口或 Xray 服务：
 
@@ -30,7 +32,7 @@ global-home-nodes update --check-only
 global-home-nodes update
 ~~~
 
-v2.1.3 修复了数字开头的供应商线路 key 被导出器忽略的问题，并保留 UUID 与 email 一致性检查。升级后运行 gl，选择“导出狗妈中转 JSON”重新生成 dogma-relay.json。
+v2.1.3 修复了数字开头的供应商线路 key 被导出器忽略的问题，并保留 UUID 与 email 一致性检查。v2.1.5 修复菜单空闲锁冲突。升级后运行 gl，选择“导出狗妈中转 JSON”重新生成 dogma-relay.json。
 
 ## 从 v2.0.1 安全升级
 
@@ -49,7 +51,7 @@ python3 "$tmp/$file" --check-only
 python3 "$tmp/$file"
 ~~~
 
-桥接器校验 v2.1.4 发布清单、固定 ZIP SHA256、13 项文件清单、路径安全、CRC、内部 SHA256 和版本元数据。它只更新管理程序代码，不更改 /etc/global-home-nodes 或服务。
+桥接器校验 v2.1.4 发布清单、固定 ZIP SHA256、13 项文件清单、路径安全、CRC、内部 SHA256 和版本元数据。它只更新管理程序代码，不更改 /etc/global-home-nodes 或服务。桥接完成后可运行 `global-home-nodes update` 升级到 v2.1.5。
 
 ## gl 菜单与狗妈 JSON
 
